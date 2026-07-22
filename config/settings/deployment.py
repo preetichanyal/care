@@ -72,7 +72,7 @@ EMAIL_USE_TLS = True
 # more details on how to customize your logging configuration.
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": True,
+    "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
@@ -86,9 +86,20 @@ LOGGING = {
             "formatter": "verbose",
         }
     },
-    "root": {"level": "INFO", "handlers": ["console"]},
+    "root": {"level": "WARNING", "handlers": ["console"]},
     "loggers": {
         "django.db.backends": {
+            "level": "ERROR",
+            "handlers": ["console"],
+            "propagate": False,
+        },
+         "abdm": {
+            "level": "DEBUG",
+            "handlers": ["console"],
+            "propagate": False,
+        },
+
+        "care_abdm": {
             "level": "ERROR",
             "handlers": ["console"],
             "propagate": False,

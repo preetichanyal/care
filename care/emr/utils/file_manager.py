@@ -1,5 +1,5 @@
 import logging
-
+from botocore.client import Config
 import boto3
 from botocore.exceptions import ClientError
 
@@ -34,24 +34,27 @@ class S3FilesManager(FileManager):
 
     def signed_url(self, file_obj, duration=60 * 60, mime_type=None):
         config, bucket_name = get_client_config(self.bucket_type, external=True)
-        s3 = boto3.client("s3", **config)
+        #s3 = boto3.client("s3", **config)
+        s3 = s3_client(config)
         params = {
             "Bucket": bucket_name,
             "Key": f"{file_obj.file_type}/{file_obj.internal_name}",
         }
 
-        _mime_type = file_obj.meta.get("mime_type") or mime_type
-        if _mime_type:
-            params["ContentType"] = _mime_type
+        #_mime_type = file_obj.meta.get("mime_type") or mime_type
+        #if _mime_type:
+        #    params["ContentType"] = _mime_type
         return s3.generate_presigned_url(
             "put_object",
             Params=params,
             ExpiresIn=duration,  # seconds
+            HttpMethod="PUT"
         )
 
     def read_signed_url(self, file_obj, duration=60 * 60):
         config, bucket_name = get_client_config(self.bucket_type, external=True)
-        s3 = boto3.client("s3", **config)
+        #s3 = boto3.client("s3", **config)
+        s3 = s3_client(config)
 
         mime_type = file_obj.meta.get("mime_type")
         content_disposition = (
@@ -70,7 +73,8 @@ class S3FilesManager(FileManager):
 
     def put_object(self, file_obj, file, **kwargs):
         config, bucket_name = get_client_config(self.bucket_type)
-        s3 = boto3.client("s3", **config)
+        #s3 = boto3.client("s3", **config)
+        s3 = s3_client(config)
         return s3.put_object(
             Body=file,
             Bucket=bucket_name,
@@ -80,7 +84,8 @@ class S3FilesManager(FileManager):
 
     def get_object(self, file_obj, **kwargs):
         config, bucket_name = get_client_config(self.bucket_type)
-        s3 = boto3.client("s3", **config)
+        #s3 = boto3.client("s3", **config)
+        s3 = s3_client(config)
         return s3.get_object(
             Bucket=bucket_name,
             Key=f"{file_obj.file_type}/{file_obj.internal_name}",
@@ -95,7 +100,8 @@ class S3FilesManager(FileManager):
 
     def delete_object(self, file_obj, quiet=False, **kwargs):
         config, bucket_name = get_client_config(self.bucket_type)
-        s3 = boto3.client("s3", **config)
+        #s3 = boto3.client("s3", **config)
+        s3 = s3_client(config)
 
         try:
             return s3.delete_object(
@@ -111,7 +117,8 @@ class S3FilesManager(FileManager):
 
     def delete_objects(self, file_obj_list, quiet=False, **kwargs):
         config, bucket_name = get_client_config(self.bucket_type)
-        s3 = boto3.client("s3", **config)
+        #s3 = boto3.client("s3", **config)
+        s3 = s3_client(config)
 
         keys = [
             f"{file_obj.file_type}/{file_obj.internal_name}"
@@ -131,3 +138,10 @@ class S3FilesManager(FileManager):
                 msg = f"Batch delete objects not implemented for {self.bucket_type.value} bucket"
                 raise NotImplementedError(msg) from e
             raise
+
+def s3_client(config):
+    return boto3.client(
+        "s3",
+        **config,
+        config=Config(s3={"addressing_style": "path"})
+    )

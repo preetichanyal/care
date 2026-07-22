@@ -35,11 +35,14 @@ def get_facility_bucket_config(external) -> tuple[ClientConfig, BucketName]:
     if CSProvider.AWS_ROLE_BASED.value != settings.BUCKET_PROVIDER:
         params["aws_access_key_id"] = settings.FACILITY_S3_KEY
         params["aws_secret_access_key"] = settings.FACILITY_S3_SECRET
-        params["endpoint_url"] = (
+        #params["endpoint_url"] = (
+        endpoint = (
             settings.FACILITY_S3_BUCKET_EXTERNAL_ENDPOINT
             if external
             else settings.FACILITY_S3_BUCKET_ENDPOINT
         )
+
+        params["endpoint_url"] = endpoint
     return params, settings.FACILITY_S3_BUCKET
 
 
@@ -48,11 +51,13 @@ def get_patient_bucket_config(external) -> tuple[ClientConfig, BucketName]:
     if CSProvider.AWS_ROLE_BASED.value != settings.BUCKET_PROVIDER:
         params["aws_access_key_id"] = settings.FACILITY_S3_KEY
         params["aws_secret_access_key"] = settings.FACILITY_S3_SECRET
-        params["endpoint_url"] = (
+        #params["endpoint_url"] = (
+        endpoint = (
             settings.FILE_UPLOAD_BUCKET_EXTERNAL_ENDPOINT
             if external
             else settings.FILE_UPLOAD_BUCKET_ENDPOINT
         )
+        params["endpoint_url"] = endpoint
     return params, settings.FILE_UPLOAD_BUCKET
 
 
