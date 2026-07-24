@@ -12,7 +12,7 @@ from plugs.plug import Plug  # noqa: F401
 abdm_plug = Plug(
     name="abdm",
     package_name="git+https://github.com/preetichanyal/care_abdm.git",
-    version="@abdm_code_changes",
+    version="@care_prod",
 )
 
 plugs = [abdm_plug]
